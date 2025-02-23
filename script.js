@@ -56,7 +56,7 @@ const animatePreview = () => {
     ) {
         const previewImages = awardPreview.querySelectorAll('img');
         previewImages.forEach((img) => {
-            gsap.to(img. {
+            gsap.to(img, {
                 scale: 0,
                 duratio: 0.4,
                 ease: 'power2.out',
@@ -102,7 +102,7 @@ const updateAwards = () => {
 
         if (isMouseOver) {
             const wrapper = award.querySelector('.award-wrapper');
-            const enteringFromTop = lastMousePosition.y < rect.top + rect.height / 2;
+            const enterFromTop = lastMousePosition.y < rect.top + rect.height / 2;
 
             gsap.to(wrapper, {
                 y: POSITIONS.MIDDLE,
@@ -132,3 +132,88 @@ document.addEventListener('mousemove', (event) => {
         lastMousePosition.y >= awardsListRect.top &&
         lastMousePosition.y <= awardsListRect.bottom;
 
+        if(isInsideAwardsList) {
+            mouseTimeout = setTimeout(() => {
+                isMouseMoving = false;
+                const images = awardPreview.querySelectorAll('img');
+                if (images.length > 1) {
+                    const lastImage  = images[images.length - 1];
+                    images.forEach((img) => {
+                        if(img !== lastImage) {
+                            gsap.to(img, {
+                                scale: 0,
+                                duration: 0.4,
+                                ease: 'power2.out',
+                                onComplete: () => img.remove(),
+                            });
+                        }
+                    })
+                }
+            }, 2000);
+        }
+
+        animatePreview();
+    });
+
+    document.addEventListener(
+        "scroll",
+        () => {
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    updateAwards();
+                });
+                ticking = true;
+            }
+        },
+        { passive: true }
+    );
+
+    awardsElements.forEach((award, index) => {
+        const wrapper = award.querySelector(".award-wrapper");
+        let currentPosition = POSITIONS.TOP;
+
+        award.addEventListener("mouseenter", (e) => {
+            activeAward = award;
+            const rect = award.getBoundingClientRect();
+            const enterFromTop = e.clientY < rect.top + rect.height / 2;
+
+            if(enterFromTop || currentPosition === POSITIONS.BOTTOM) {
+                currentPosition = POSITIONS.MIDDLE;
+                gsap.to(wrapper, {
+                    y: POSITIONS.MIDDLE,
+                    duration: 0.4,
+                    ease: "power2.out",
+                });
+            }
+
+            const img = document.createElement("img");
+            img.src = `assets/img${index + 1}.jpg`;
+            img.style.position = "absolute";
+            img.style.top = 0;
+            img.style.left = 0;
+            img.style.scale = 0;
+            img.style.zIndex = Date.now();
+
+            awardPreview.appendChild(img);
+
+            gsap.to(img, {
+                scale: 1,
+                duration: 0.4,
+                ease: "power2.out",
+            });
+        });
+
+        award.addEventListener("mouseleave", () => {
+            activeAward = null;
+            const rect = award.getBoundingClientRect();
+            const leavingFromTop = e.clientY < rect.top + rect.height / 2;
+
+            currentPosition = leavingFromTop ? POSITIONS.TOP : POSITIONS.BOTTOM;
+            gsap.to(wrapper, {
+                y: currentPosition,
+                duration: 0.4,
+                ease: "power2.out",
+            });
+        });
+    });
+});
