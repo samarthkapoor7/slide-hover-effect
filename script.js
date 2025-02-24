@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 const awardsListContainer = document.querySelector('.awards-list');
 const awardPreview = document.querySelector('.award-preview');
+const awardsList = document.querySelector(".awards-list");
 
 const POSITIONS = {
     BOTTOM: 0,
@@ -44,7 +45,7 @@ awards.forEach((award) => {
     awardsListContainer.appendChild(awardElement);
 });
 
-const awardElements = document.querySelectorAll('.award');
+const awardsElements = document.querySelectorAll('.award');
 
 const animatePreview = () => {
     const awardsListRect = awardsList.getBoundingClientRect();
@@ -91,7 +92,7 @@ const updateAwards = () => {
     }
 
     awardsElements.forEach((award, index) => {
-        if (awards === activeAward) return;
+        if (award === activeAward) return;
 
         const rect = award.getBoundingClientRect();
         const isMouseOver = 
@@ -187,7 +188,7 @@ document.addEventListener('mousemove', (event) => {
             }
 
             const img = document.createElement("img");
-            img.src = `assets/img${index + 1}.jpg`;
+            img.src = `assets/img${index + 1}.jpeg`;
             img.style.position = "absolute";
             img.style.top = 0;
             img.style.left = 0;
